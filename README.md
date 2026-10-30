@@ -1,32 +1,49 @@
-# Cosmic Oracle AI — Website v2
+# Cosmic Oracle AI — Free astrology website
 
-A responsive, multi-section website for Cosmic Oracle AI (not a native/mobile application).
+A responsive **website for desktop and mobile browsers**. This is not an Android/iOS app. No premium plan, subscription, payment wall or five-question limit is included.
 
-## Website sections
-- Public landing page and brand story
-- Birth profile workspace (local-device save without backend; private cloud save with Supabase)
-- Oracle question page and conversation history
-- Source knowledge library
-- Plans page (checkout intentionally disabled until a payment provider is configured)
-- Methodology and transparency page
-- English, Hindi and Hinglish interface
+Website URL: https://akashhroy.github.io/cosmic-oracle-ai/
 
-## Run locally
-Node.js 20+: `npm install`, `npm run dev`. Validate with `npm run typecheck`, `npm test`, `npm run build`.
+## User experience
+- Birth profile stored locally without requiring an account.
+- Ask Oracle without signing in once the public Supabase Edge Function is deployed.
+- Unlimited free questions (subject to basic anti-abuse protections imposed by the hosting/search/AI providers).
+- Hinglish, Hindi and English interface.
+- Traditional astrology knowledge library.
+- Each answer can include links to the web research sources used.
+- Question history is stored in the browser for anonymous visitors.
+- Optional Supabase account for cloud-saved birth profiles.
 
-## GitHub Pages
-The single workflow at `.github/workflows/deploy.yml` builds and deploys the Vite website to `https://akashhroy.github.io/cosmic-oracle-ai/`. GitHub Pages source must be set to GitHub Actions.
+## How the AI works
+1. User enters birth date, birth time (if known), birthplace and a question.
+2. The Edge Function sends the question to Tavily Search API to retrieve current public web pages about the relevant Vedic astrology concepts.
+3. Gemini synthesizes those research snippets and answers in the selected language, including source URLs.
+4. The AI is instructed not to invent personal placements, house positions or dasha periods. Until a verified ephemeris is integrated, it explains general possibilities and clearly says what cannot yet be confirmed from the supplied birth data.
 
-## Supabase setup
-1. Create a Supabase project.
-2. Run `supabase/migrations/202610300001_initial_schema.sql` in the SQL Editor.
-3. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as GitHub Actions repository variables (Settings → Secrets and variables → Actions → Variables). They are public client configuration; never add a service-role key to the website.
-4. Deploy the Edge Function `ask-oracle` using Supabase CLI. Set `GEMINI_API_KEY` as an Edge Function secret.
-5. In Supabase Auth URL configuration, set Site URL to `https://akashhroy.github.io` and add redirect URL `https://akashhroy.github.io/cosmic-oracle-ai/`.
-6. Add a GitHub Actions build step to write the two `VITE_` variables into `.env.production` before `npm run build`, or use repository variables in the workflow.
+**Important limitation:** internet search is not a horoscope calculator. A personal statement such as “Mars is in your 7th house” requires accurate birth time/place, geocoding, time-zone conversion and validated astronomical calculations. The current ephemeris adapter deliberately fails closed. Do not treat generic search snippets as proof of a person's chart.
 
-## Important limitations
-- A validated Vedic ephemeris/Ascendant provider is not included. The website deliberately does not fabricate planetary positions, Lagna, houses or Dasha values. The Oracle prompt explicitly tells Gemini not to invent them.
-- The five-free-question reservation is enforced server-side in SQL. Premium checkout is not enabled and no payment is collected.
-- Birth-place geocoding and actual chart generation remain future integrations.
-- The source PDFs contain known limitations: the primary report is truncated at page 93, two AstroSage Duggi reports are duplicates, and report contradictions are retained as caveats.
+## Required backend setup
+Create a Supabase project. Deploy the function:
+`supabase/functions/ask-oracle/index.ts`
+
+Set these Supabase Edge Function secrets:
+- `GEMINI_API_KEY` — Google AI Studio Gemini API key
+- `TAVILY_API_KEY` — Tavily Search API key
+
+The browser must have the public Supabase project URL and anon/publishable key at build time. In GitHub:
+Settings → Secrets and variables → Actions → Variables:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+Never expose `GEMINI_API_KEY`, `TAVILY_API_KEY`, or Supabase service-role key in frontend code or VITE variables.
+
+Optional cloud accounts: run `supabase/migrations/202610300001_initial_schema.sql` in Supabase SQL Editor, enable email auth, and add the GitHub Pages URL to allowed redirects. Anonymous profile/question data stays in browser local storage.
+
+## Deploy
+Keep only `.github/workflows/deploy.yml`; delete manually-created duplicate `main.yml`. Set repository Settings → Pages → Source to GitHub Actions. Push to `main`. Workflow runs npm install, TypeScript check, tests, Vite build and deploys `dist`.
+
+## Local commands
+Node 20+: `npm install`, `npm run dev`, `npm run typecheck`, `npm test`, `npm run build`.
+
+## Astrology source limitations
+The uploaded astrology reports have contradictions; the main GAURAV report is truncated at page 93 and two AstroSage Duggi files are duplicates. They are not a complete classical rulebook. Treat traditional interpretations as cultural/astrological perspectives, not scientific certainty or guaranteed predictions.
