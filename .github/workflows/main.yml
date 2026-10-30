@@ -1,5 +1,5 @@
 
-name: Cosmic Oracle AI Website Deployment
+name: Cosmic Oracle AI Website
 
 on:
   push:
@@ -24,27 +24,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install packages
+      - name: Install dependencies
         run: npm install
 
       - name: TypeScript check
         run: npm run typecheck
 
-      - name: Run tests
+      - name: Unit tests
         run: npm test
 
       - name: Build website
         run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
       - name: SPA fallback
         run: cp dist/index.html dist/404.html
 
-      - name: Upload website
+      - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -58,6 +61,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
