@@ -47,3 +47,4 @@ Node 20+: `npm install`, `npm run dev`, `npm run typecheck`, `npm test`, `npm ru
 
 ## Astrology source limitations
 The uploaded astrology reports have contradictions; the main GAURAV report is truncated at page 93 and two AstroSage Duggi files are duplicates. They are not a complete classical rulebook. Treat traditional interpretations as cultural/astrological perspectives, not scientific certainty or guaranteed predictions.
+<!-- Trigger fresh deployment -->
